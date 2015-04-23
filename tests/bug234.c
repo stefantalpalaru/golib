@@ -36,13 +36,13 @@ void go_main() {
     chan_recv2_result res = chan_recv2(c);
     x = *(int*)res.recv;
     if(x != 100 || !res.ok) {
-		printf("x=%d ok=%d want 100, 1\n", x, res.ok);
+        printf("x=%d ok=%d want 100, 1\n", x, res.ok);
         exit(1);
     }
     chan_close(c);
     res = chan_recv2(c);
     if(res.recv != NULL || res.ok) {
-		printf("recv=%p ok=%d want (nil), 0\n", res.recv, res.ok);
+        printf("recv=%p ok=%d want (nil), 0\n", res.recv, res.ok);
         exit(1);
     }
 }

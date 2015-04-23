@@ -31,8 +31,8 @@ unsigned int counter = 0;
 unsigned int shift = 0;
 
 unsigned int GetValue(){
-	counter++;
-	return 1 << shift;
+    counter++;
+    return 1 << shift;
 }
 
 int Send(void *a, void *b){
@@ -81,7 +81,7 @@ void go_main() {
 
     int v = Send(a, b);
     if(v != 2){
-		printf("Send returned %d != 2\n", v);
+        printf("Send returned %d != 2\n", v);
         exit(1);
     }
 
@@ -94,7 +94,7 @@ void go_main() {
 
     v = Send(a, NULL);
     if(v != 1){
-		printf("Send returned %d != 1\n", v);
+        printf("Send returned %d != 1\n", v);
         exit(1);
     }
 
