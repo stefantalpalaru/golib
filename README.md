@@ -11,6 +11,25 @@ There are two catches:
   technical reasons, so the channel/goroutine performance is lower and the
   memory usage is higher. Apparently because gccgo doesn't do escape analysis.
 
+##requirements
+
+- GCC with Go support (tested with gcc-4.9.2)
+
+##inspiration
+
+- [uWSGI's gccgo plugin][4]
+- [GCC's libgo][5]
+
+##discussion
+
+The main problem with *libgo* is that it exposes extremely little in terms of a
+public API. Just the [function name mangling scheme][6] and [a couple of
+types][7] (I had no luck with *\_\_go\_slice*, BTW). But there is a huge public
+API in the form of the Go language specifications and its included packages.
+
+So the strategy is to use as little as possible directly from libgo and write
+Go code for the rest.
+
 ##build
 
 ```sh
@@ -62,4 +81,8 @@ BSD-2
 [1]: benchmarks/cw-c.c
 [2]: benchmarks/
 [3]: tests/
+[4]: https://github.com/unbit/uwsgi/tree/master/plugins/gccgo
+[5]: https://github.com/gcc-mirror/gcc/tree/master/libgo
+[6]: https://gcc.gnu.org/onlinedocs/gccgo/Function-Names.html#Function-Names
+[7]: https://gcc.gnu.org/onlinedocs/gccgo/C-Type-Interoperability.html#C-Type-Interoperability
 
