@@ -1,0 +1,88 @@
+/*
+Copyright (c) 2015, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#ifndef _GOLIB_H
+#define _GOLIB_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// libgo symbols
+extern void runtime_check();
+extern void runtime_args(int, char **);
+extern void runtime_osinit();
+extern void runtime_schedinit();
+extern void runtime_main();
+extern void runtime_mstart(void *);
+// no_split_stack is the key to avoid crashing !!! [uWSGI comment, I don't see crashes with gcc-4.9.2]
+/*void* runtime_m() __attribute__ ((noinline, no_split_stack));*/
+extern void* runtime_m();
+/*extern void runtime_gosched();*/
+/*extern void runtime_netpollinit();*/
+/*extern void runtime_lockOSThread();*/
+extern void* __go_go(void (*f)(void *), void *);
+typedef signed int int32 __attribute__ ((mode (SI)));
+extern int32 runtime_gomaxprocsfunc(int32 n);
+extern int32 runtime_ncpu;
+
+// helpers
+extern void golib_main(int argc, char **argv);
+
+#define SELECT_DIR_SEND 1
+#define SELECT_DIR_RECV 2
+#define SELECT_DIR_DEFAULT 3
+typedef struct chan_select_case {
+    unsigned int dir;
+    void *chan;
+    void *send;
+} chan_select_case;
+
+typedef struct chan_select_result {
+    int chosen;
+    void *recv;
+    _Bool recv_ok;
+} chan_select_result;
+
+typedef struct chan_recv2_result {
+    void *recv;
+    _Bool ok;
+} chan_recv2_result;
+
+// our golib.go symbols
+extern void* chan_make(int) __asm__ ("main.Chan_make");
+extern void chan_send(void *, void *) __asm__ ("main.Chan_send");
+extern void* chan_recv(void *) __asm__ ("main.Chan_recv");
+extern chan_recv2_result chan_recv2(void *) __asm__ ("main.Chan_recv2");
+extern void chan_close(void *) __asm__ ("main.Chan_close");
+extern void chan_dispose(void *) __asm__ ("main.Chan_dispose");
+extern chan_select_result chan_select(chan_select_case *, int) __asm__ ("main.Chan_select");
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _GOLIB_H */
+
