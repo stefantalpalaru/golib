@@ -4,9 +4,9 @@
 other language able to use C libraries.
 
 There are two catches:
-- your main() function needs to call golib\_main() which will not return control
+- your *main()* function needs to call *golib\_main()* which will not return control
   to it. You should put the actual main code in another function with the
-  assembler name of 'main.main' (see examples).
+  assembler name of *'main.main'* (see examples).
 - we use gccgo (from upstream GCC) instead of the main Go toolchain, for
   technical reasons, so the channel/goroutine performance is lower and the
   memory usage is higher. Apparently because gccgo doesn't do escape analysis.
