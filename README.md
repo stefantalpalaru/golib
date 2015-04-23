@@ -74,6 +74,15 @@ that enabling multiple core usage speeds up slightly the go version while
 slowing down the gccgo one. But look at the bright side: when gccgo improves,
 **golib** will reap the benefits ;-)
 
+**Later edit:** with gcc-5.1.0 there's a small improvement: now the **golib**
+version is 2.3 times slower and uses 4.9 times more memory than the go
+equivalent. Instructions for building with non-default compilers:
+```sh
+./configure CC=gcc-5.1.0 GOC=gccgo-5.1.0
+make clean
+make
+```
+
 ##API docs
 
 See the [benchmarks][2] and [tests][3]. We'll have proper documentation once the API is
