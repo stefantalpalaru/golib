@@ -65,7 +65,7 @@ make check
 
 With the [chinese whispers benchmark][1] I see on my system (gcc-4.9.2, go-1.4.2,
 AMD FX-8320E, Linux 4.0.0 x86\_64) that the **golib** version is 2.4 times slower
-and uses 5.7 times more memory than the go version. This should be a worse case
+and uses 5.7 times more memory than the go version. This should be a worst case
 scenario since the benchmark creates 500000 goroutines and then passes integers
 from one to the other, incrementing them with each pass. So it's basically
 testing the concurrency and message passing overhead. An interesting aspect is
@@ -78,7 +78,9 @@ slowing down the gccgo one. But look at the bright side: when gccgo improves,
 See the [benchmarks][2] and [tests][3]. We'll have proper documentation once the API is
 stable. Right now it's more of a technical preview.
 
-It might be worth noting that we pass pointers through the channels and they should point to heap allocated memory. Freeing that memory is the receiver's responsibility.
+It might be worth noting that we pass pointers through the channels and they
+should point to heap allocated memory. Freeing that memory is the receiver's
+responsibility.
 
 ##license
 
