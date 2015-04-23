@@ -1,6 +1,6 @@
 ##description
 
-golib is a library exposing Go channels and goroutines to plain C and to any
+**golib** is a library exposing Go's channels and goroutines to plain C and to any
 other language able to use C libraries.
 
 There are two catches:
