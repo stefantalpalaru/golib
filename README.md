@@ -17,6 +17,7 @@ There are two catches:
 
 ##inspiration
 
+- [this Stack Overflow response][8]
 - [uWSGI's gccgo plugin][4]
 - [GCC's libgo][5]
 
@@ -85,4 +86,5 @@ BSD-2
 [5]: https://github.com/gcc-mirror/gcc/tree/master/libgo
 [6]: https://gcc.gnu.org/onlinedocs/gccgo/Function-Names.html#Function-Names
 [7]: https://gcc.gnu.org/onlinedocs/gccgo/C-Type-Interoperability.html#C-Type-Interoperability
+[8]: http://stackoverflow.com/questions/6125683/call-go-functions-from-c/15760986#15760986
 
