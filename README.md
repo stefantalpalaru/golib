@@ -14,7 +14,7 @@ There are two catches:
 ##requirements
 
 - GCC with Go support (tested with gcc-4.9.2). You can build and use the
-  library with Clang but you still need libgo from GCC.
+  library with Clang but you still need to link against libgo from GCC.
 
 ##inspiration
 
@@ -38,7 +38,7 @@ When building this library and programs using it it's important to leave the
 debug info unstripped because the Go runtime needs it. So use '-g' in your
 CFLAGS and make sure you don't have '-s' in LDFLAGS (already done in **golib**'s
 build system) and if you're a distribution packager make sure that the
-installed binaries are excepted from stripping.
+installed binaries are excepted from stripping, like in the [Gentoo ebuild][9].
 
 Don't be alarmed by the use of Pthreads. *libgo* only uses it for mutexes, the
 coroutines are proper user-space M:N coroutines just like in Go.
@@ -101,4 +101,5 @@ BSD-2
 [6]: https://gcc.gnu.org/onlinedocs/gccgo/Function-Names.html#Function-Names
 [7]: https://gcc.gnu.org/onlinedocs/gccgo/C-Type-Interoperability.html#C-Type-Interoperability
 [8]: http://stackoverflow.com/questions/6125683/call-go-functions-from-c/15760986#15760986
+[9]: https://github.com/stefantalpalaru/gentoo-overlay/blob/master/dev-libs/golib/golib-9999.ebuild
 
