@@ -13,7 +13,8 @@ There are two catches:
 
 ##requirements
 
-- GCC with Go support (tested with gcc-4.9.2)
+- GCC with Go support (tested with gcc-4.9.2). You can build and use the
+  library with Clang but you still need libgo from GCC.
 
 ##inspiration
 
