@@ -1,12 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"runtime/debug"
+)
 
 func whisper(left, right chan int) {
 	left <- 1 + <-right
 }
 
 func main() {
+	debug.SetGCPercent(-1) // disable the GC, like we do for the golib version
+
 	const n = 500000
 	leftmost := make(chan int)
 	right := leftmost

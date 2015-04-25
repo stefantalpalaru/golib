@@ -26,12 +26,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include "golib.h"
 
+// libgo symbols
+extern void runtime_check();
+extern void runtime_args(int, char **);
+extern void runtime_osinit();
+extern void runtime_schedinit();
+extern void runtime_main();
+extern void runtime_mstart(void *);
+// no_split_stack is the key to avoid crashing !!! [uWSGI comment, I don't see crashes with gcc-4.9.2]
+/*void* runtime_m() __attribute__ ((noinline, no_split_stack));*/
+extern void* runtime_m();
+
+// our golib.go symbols
+extern void golib_init() __asm__ ("main.Golib_init");
+
 void golib_main(int argc, char **argv) {
     runtime_check();
     runtime_args(argc, argv);
     runtime_osinit();
     runtime_schedinit();
+    golib_init();
     __go_go((void (*)(void *))runtime_main, NULL);
     runtime_mstart(runtime_m());
     abort();
 }
+

@@ -31,15 +31,6 @@ extern "C" {
 #endif
 
 // libgo symbols
-extern void runtime_check();
-extern void runtime_args(int, char **);
-extern void runtime_osinit();
-extern void runtime_schedinit();
-extern void runtime_main();
-extern void runtime_mstart(void *);
-// no_split_stack is the key to avoid crashing !!! [uWSGI comment, I don't see crashes with gcc-4.9.2]
-/*void* runtime_m() __attribute__ ((noinline, no_split_stack));*/
-extern void* runtime_m();
 /*extern void runtime_gosched();*/
 /*extern void runtime_netpollinit();*/
 /*extern void runtime_lockOSThread();*/
@@ -47,10 +38,9 @@ extern void* __go_go(void (*f)(void *), void *);
 typedef signed int int32 __attribute__ ((mode (SI)));
 extern int32 runtime_gomaxprocsfunc(int32 n);
 extern int32 runtime_ncpu;
+extern void __go_free(void *);
 
 // helpers
-extern void golib_main(int argc, char **argv);
-
 #define SELECT_DIR_SEND 1
 #define SELECT_DIR_RECV 2
 #define SELECT_DIR_DEFAULT 3
@@ -71,13 +61,14 @@ typedef struct chan_recv2_result {
     _Bool ok;
 } chan_recv2_result;
 
+extern void golib_main(int argc, char **argv);
+
 // our golib.go symbols
 extern void* chan_make(int) __asm__ ("main.Chan_make");
 extern void chan_send(void *, void *) __asm__ ("main.Chan_send");
 extern void* chan_recv(void *) __asm__ ("main.Chan_recv");
 extern chan_recv2_result chan_recv2(void *) __asm__ ("main.Chan_recv2");
 extern void chan_close(void *) __asm__ ("main.Chan_close");
-extern void chan_dispose(void *) __asm__ ("main.Chan_dispose");
 extern chan_select_result chan_select(chan_select_case *, int) __asm__ ("main.Chan_select");
 
 #ifdef __cplusplus

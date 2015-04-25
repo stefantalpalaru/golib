@@ -23,6 +23,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// we are not freeing allocated memory but we make up for it by also disabling the GC in the Go version
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "golib.h"
@@ -37,8 +39,10 @@ void whisper(void* args) {
     channels *chans = (channels *)args;
 
     *r = *(long *)chan_recv(chans->right);
+    /*__go_free(chans->right);*/
     *r += 1;
     chan_send(chans->left, r);
+    /*free(args);*/
 }
 
 void first_whisper(void* chan) {
@@ -60,17 +64,24 @@ void go_main() {
     long i;
     long res;
     channels *chans;
+    // used to keep track of goroutines so we can free them
+    void **goroutines = (void **)malloc((n + 1) * sizeof(void*));
 
     for(i = 0; i < n; i++) {
         right = chan_make(0);
         chans = (channels *)malloc(sizeof(channels));
         chans->left = left;
         chans->right = right;
-        __go_go(whisper, chans);
+        goroutines[i] = __go_go(whisper, chans);
         left = right;
     }
-    __go_go(first_whisper, right);
+    goroutines[i] = __go_go(first_whisper, right);
     res = *(long *)chan_recv(leftmost);
+    /*__go_free(leftmost);*/
+    /*for(i = 0; i <= n; i++) {*/
+        /*__go_free(goroutines[i]);*/
+    /*}*/
+    /*free(goroutines);*/
     printf("%ld\n", res);
 }
 

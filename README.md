@@ -65,8 +65,8 @@ make check
 ```
 
 With the [chinese whispers benchmark][1] I see on my system (gcc-4.9.2, go-1.4.2,
-AMD FX-8320E, Linux 4.0.0 x86\_64) that the **golib** version is 2.4 times slower
-and uses 5.7 times more memory than the go version. This should be a worst case
+AMD FX-8320E, Linux 4.0.0 x86\_64) that the **golib** version is 6 times slower
+and uses 5 times more memory than the go version. This should be a worst case
 scenario since the benchmark creates 500000 goroutines and then passes integers
 from one to the other, incrementing them with each pass. So it's basically
 testing the concurrency and message passing overhead. An interesting aspect is
@@ -74,9 +74,7 @@ that enabling multiple core usage speeds up slightly the go version while
 slowing down the gccgo one. But look at the bright side: when gccgo improves,
 **golib** will reap the benefits ;-)
 
-**Later edit:** with gcc-5.1.0 there's a small improvement: now the **golib**
-version is 2.3 times slower and uses 4.9 times more memory than the go
-equivalent. Instructions for building with non-default compilers:
+Instructions for building with non-default compilers:
 ```sh
 ./configure CC=gcc-5.1.0 GOC=gccgo-5.1.0
 make clean
