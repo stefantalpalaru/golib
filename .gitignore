@@ -26,6 +26,7 @@ build
 *.hex
 /benchmarks/*-c
 /benchmarks/*-go
+/benchmarks/*-go-gccgo
 /tests/select
 /tests/bug234
 

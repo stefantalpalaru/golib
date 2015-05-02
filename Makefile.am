@@ -19,13 +19,19 @@ tests_bug234_LDFLAGS = -no-install
 
 TESTS = $(check_PROGRAMS)
 
+# gccgo benchmarks
+noinst_DATA = benchmarks/cw-go-gccgo
+benchmarks/%-go-gccgo: benchmarks/%-go.go
+	$(GOC) $(CFLAGS) $(LDFLAGS) $< -o $@
+
 # Go benchmarks
 if HAVE_GO
-noinst_DATA = benchmarks/cw-go
-MOSTLYCLEANFILES := $(noinst_DATA)
+noinst_DATA += benchmarks/cw-go
 benchmarks/%-go: benchmarks/%-go.go
 	go build -o $@ $<
 endif
+
+MOSTLYCLEANFILES := $(noinst_DATA)
 
 # C benchmarks
 noinst_PROGRAMS = benchmarks/cw-c

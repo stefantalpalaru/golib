@@ -35,18 +35,17 @@ typedef struct channels {
 } channels;
 
 void whisper(void* args) {
-    long *r = (long *)malloc(sizeof(long));
+    long *r = (long *)runtime_mal(sizeof(long));
     channels *chans = (channels *)args;
 
     *r = *(long *)chan_recv(chans->right);
-    /*__go_free(chans->right);*/
+    chan_dispose(chans->right);
     *r += 1;
     chan_send(chans->left, r);
-    /*free(args);*/
 }
 
 void first_whisper(void* chan) {
-    long *v = (long *)malloc(sizeof(long));
+    long *v = (long *)runtime_mal(sizeof(long));
 
     *v = 1;
     chan_send(chan, v);
@@ -64,24 +63,18 @@ void go_main() {
     long i;
     long res;
     channels *chans;
-    // used to keep track of goroutines so we can free them
-    void **goroutines = (void **)malloc((n + 1) * sizeof(void*));
 
     for(i = 0; i < n; i++) {
         right = chan_make(0);
-        chans = (channels *)malloc(sizeof(channels));
+        chans = (channels *)runtime_mal(sizeof(channels));
         chans->left = left;
         chans->right = right;
-        goroutines[i] = __go_go(whisper, chans);
+        __go_go(whisper, chans);
         left = right;
     }
-    goroutines[i] = __go_go(first_whisper, right);
+    __go_go(first_whisper, right);
     res = *(long *)chan_recv(leftmost);
-    /*__go_free(leftmost);*/
-    /*for(i = 0; i <= n; i++) {*/
-        /*__go_free(goroutines[i]);*/
-    /*}*/
-    /*free(goroutines);*/
+    chan_dispose(leftmost);
     printf("%ld\n", res);
 }
 

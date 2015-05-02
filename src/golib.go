@@ -26,19 +26,19 @@ package main
 import (
 	// "fmt"
 	"reflect"
-	"runtime/debug"
 	"time"
 	"unsafe"
 )
 
+// keep the channels around to avoid garbage collection while they are used in C
+var channels = map[chan *int]bool{}
+
 func Golib_init() {
-	// Disable the GC. We have to manually free the channels
-	// and the goroutines with __go_free().
-	debug.SetGCPercent(-1)
 }
 
 func Chan_make(size int) chan *int {
 	c := make(chan *int, size)
+	channels[c] = true
 	return c
 }
 
@@ -58,6 +58,10 @@ func Chan_recv2(c chan *int) (v *int, ok bool) {
 
 func Chan_close(c chan *int) {
 	close(c)
+}
+
+func Chan_dispose(c chan *int) {
+	delete(channels, c)
 }
 
 type Chan_select_case struct {
