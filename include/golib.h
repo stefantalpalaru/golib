@@ -40,6 +40,8 @@ typedef signed int int64 __attribute__ ((mode (DI)));
 extern int32 runtime_gomaxprocsfunc(int32 n);
 extern int32 runtime_ncpu;
 extern void __go_free(void *);
+extern void runtime_stoptheworld();
+extern void runtime_starttheworld();
 
 // helpers
 #define SELECT_DIR_SEND 1
