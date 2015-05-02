@@ -36,6 +36,7 @@ extern "C" {
 /*extern void runtime_lockOSThread();*/
 extern void* __go_go(void (*f)(void *), void *);
 typedef signed int int32 __attribute__ ((mode (SI)));
+typedef signed int int64 __attribute__ ((mode (DI)));
 extern int32 runtime_gomaxprocsfunc(int32 n);
 extern int32 runtime_ncpu;
 extern void __go_free(void *);
@@ -70,6 +71,7 @@ extern void* chan_recv(void *) __asm__ ("main.Chan_recv");
 extern chan_recv2_result chan_recv2(void *) __asm__ ("main.Chan_recv2");
 extern void chan_close(void *) __asm__ ("main.Chan_close");
 extern chan_select_result chan_select(chan_select_case *, int) __asm__ ("main.Chan_select");
+extern void sleep_ms(int64) __asm__ ("main.Sleep_ms");
 
 #ifdef __cplusplus
 }

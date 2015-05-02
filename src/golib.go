@@ -27,6 +27,7 @@ import (
 	// "fmt"
 	"reflect"
 	"runtime/debug"
+	"time"
 	"unsafe"
 )
 
@@ -93,4 +94,8 @@ func Chan_select(cases *Chan_select_case, num_cases int) (chosen int, recv *int,
 		recv = (*int)(nil)
 	}
 	return
+}
+
+func Sleep_ms(n int64) {
+	time.Sleep((time.Duration)(n) * time.Millisecond)
 }
