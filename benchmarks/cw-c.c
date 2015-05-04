@@ -35,7 +35,7 @@ typedef struct channels {
 } channels;
 
 void whisper(void* args) {
-    long *r = (long *)runtime_mal(sizeof(long));
+    long *r = (long *)malloc(sizeof(long));
     channels *chans = (channels *)args;
 
     *r = *(long *)chan_recv(chans->right);
@@ -45,7 +45,7 @@ void whisper(void* args) {
 }
 
 void first_whisper(void* chan) {
-    long *v = (long *)runtime_mal(sizeof(long));
+    long *v = (long *)malloc(sizeof(long));
 
     *v = 1;
     chan_send(chan, v);
@@ -66,7 +66,7 @@ void go_main() {
 
     for(i = 0; i < n; i++) {
         right = chan_make(0);
-        chans = (channels *)runtime_mal(sizeof(channels));
+        chans = (channels *)malloc(sizeof(channels));
         chans->left = left;
         chans->right = right;
         __go_go(whisper, chans);
