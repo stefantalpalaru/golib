@@ -34,7 +34,6 @@ extern "C" {
 typedef signed int int32 __attribute__ ((mode (SI)));
 typedef signed int int64 __attribute__ ((mode (DI)));
 typedef unsigned int uintptr __attribute__ ((mode (pointer)));
-/*extern void runtime_gosched();*/
 /*extern void runtime_netpollinit();*/
 /*extern void runtime_lockOSThread();*/
 extern void* __go_go(void (*f)(void *), void *);
@@ -43,6 +42,7 @@ extern int32 runtime_ncpu;
 extern void __go_free(void *);
 extern void runtime_stoptheworld();
 extern void runtime_starttheworld();
+extern void runtime_gosched();
 
 // helpers
 #define SELECT_DIR_SEND 1
