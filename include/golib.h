@@ -41,8 +41,6 @@ extern int32 runtime_gomaxprocsfunc(int32);
 extern int32 runtime_ncpu;
 //extern void __go_free(void *);
 extern void runtime_gosched();
-typedef struct MStats MStats;
-extern void runtime_ReadMemStats(MStats *stats);
 
 // helpers
 #define SELECT_DIR_SEND 1
