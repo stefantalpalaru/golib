@@ -89,7 +89,7 @@ stable. Right now it's more of a technical preview.
 It might be worth noting that we pass pointers through the channels and they
 should point to heap allocated memory. Freeing that memory is the receiver's
 responsibility. As an alternative, you can use Go's garbage collector from C by
-replacing malloc() with runtime\_mal().
+replacing malloc() with go\_malloc().
 
 ##license
 
