@@ -26,6 +26,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include "golib.h"
 
+#define ROUND(x, n) (((x)+(n)-1)&~(uintptr)((n)-1))
+enum
+{
+	// flags to malloc
+	FlagNoScan	= 1<<0,	// GC doesn't have to scan object
+	FlagNoProfiling	= 1<<1,	// must not profile
+	FlagNoGC	= 1<<2,	// must not free or scan for pointers
+	FlagNoZero	= 1<<3, // don't zero memory
+	FlagNoInvokeGC	= 1<<4, // don't invoke GC
+};
+
 // libgo symbols
 extern void runtime_check();
 extern void runtime_args(int, char **);
@@ -36,6 +47,7 @@ extern void runtime_mstart(void *);
 // no_split_stack is the key to avoid crashing !!! [uWSGI comment, I don't see crashes with gcc-4.9.2]
 /*void* runtime_m() __attribute__ ((noinline, no_split_stack));*/
 extern void* runtime_m();
+extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag);
 
 // our golib.go symbols
 extern void golib_init() __asm__ ("main.Golib_init");
@@ -49,5 +61,13 @@ void golib_main(int argc, char **argv) {
     __go_go((void (*)(void *))runtime_main, NULL);
     runtime_mstart(runtime_m());
     abort();
+}
+
+void* go_malloc(uintptr size) {
+    return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, FlagNoZero);
+}
+
+void* go_malloc0(uintptr size) {
+    return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, 0);
 }
 

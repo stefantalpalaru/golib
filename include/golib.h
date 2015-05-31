@@ -34,6 +34,7 @@ extern "C" {
 typedef signed int int32 __attribute__ ((mode (SI)));
 typedef signed int int64 __attribute__ ((mode (DI)));
 typedef unsigned int uintptr __attribute__ ((mode (pointer)));
+typedef unsigned int uint32  __attribute__ ((mode (SI)));
 /*extern void runtime_netpollinit();*/
 /*extern void runtime_lockOSThread();*/
 extern void* __go_go(void (*f)(void *), void *);
@@ -46,8 +47,9 @@ extern void runtime_gosched();
 #define SELECT_DIR_SEND 1
 #define SELECT_DIR_RECV 2
 #define SELECT_DIR_DEFAULT 3
+
 typedef struct chan_select_case {
-    unsigned int dir;
+    uintptr dir;
     void *chan;
     void *send;
 } chan_select_case;
@@ -64,6 +66,8 @@ typedef struct chan_recv2_result {
 } chan_recv2_result;
 
 extern void golib_main(int argc, char **argv);
+extern void* go_malloc(uintptr size);
+extern void* go_malloc0(uintptr size);
 
 // our golib.go symbols
 extern void* chan_make(int) __asm__ ("main.Chan_make");

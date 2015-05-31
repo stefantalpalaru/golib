@@ -38,7 +38,7 @@ unsigned int GetValue(){
 int Send(void *a, void *b){
     int i = 0;
     int num_cases = 3;
-    chan_select_case *cases = malloc(sizeof(chan_select_case) * num_cases);
+    chan_select_case *cases = go_malloc(sizeof(chan_select_case) * num_cases);
     unsigned int *val1;
     unsigned int *val2;
     chan_select_result result;
@@ -46,8 +46,8 @@ int Send(void *a, void *b){
     for (;;) {
         // we're allocating memory that won't end up pointed at by a channel value,
         // but we care more about simulating Go's select statement behavior for this test
-        val1 = malloc(sizeof(int));
-        val2 = malloc(sizeof(int));
+        val1 = go_malloc(sizeof(int));
+        val2 = go_malloc(sizeof(int));
         *val1 = GetValue();
         *val2 = GetValue();
         cases[0] = (chan_select_case){.dir = SELECT_DIR_SEND, .chan = a, .send = val1 };
