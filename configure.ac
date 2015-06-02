@@ -2,7 +2,7 @@ AC_INIT([golib], [0.0.1], [stefantalpalaru@yahoo.com], [golib], [https://github.
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 LT_INIT
 
-CFLAGS+=" -g -std=gnu99 -Wall -Wextra "
+CFLAGS+=" -g -std=gnu99 -fsplit-stack -Wall -Wextra "
 dnl we need to avoid stripping because gccgo binaries need their debug info at runtime
 dnl so either filter LDFLAGS or warn the user not to have '-s' in them
 LDFLAGS=`echo $LDFLAGS | sed 's/-s\>//g'`
