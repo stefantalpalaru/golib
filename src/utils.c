@@ -52,8 +52,28 @@ extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag);
 // our golib.go symbols
 extern void golib_init() __asm__ ("main.Golib_init");
 
+// have the GC scan the BSS
+extern char edata, end;
+struct root_list {
+	struct root_list *next;
+	struct root {
+		void *decl;
+		size_t size;
+	} roots[];
+};
+extern void __go_register_gc_roots (struct root_list* r);
+static struct root_list bss_roots = {
+    NULL,
+    { { NULL, 0 },
+      { NULL, 0 } },
+};
+
 void golib_main(int argc, char **argv) {
     runtime_check();
+    /*printf("edata=%p, end=%p, end-edata=%d\n", &edata, &end, &end - &edata);*/
+    bss_roots.roots[0].decl = &edata;
+    bss_roots.roots[0].size = &end - &edata;
+    __go_register_gc_roots(&bss_roots);
     runtime_args(argc, argv);
     runtime_osinit();
     runtime_schedinit();
