@@ -68,6 +68,7 @@ typedef struct chan_recv2_result {
 extern void golib_main(int argc, char **argv);
 extern void* go_malloc(uintptr size);
 extern void* go_malloc0(uintptr size);
+extern void go_run_finalizer(void (*f)(void *), void *obj);
 
 // our golib.go symbols
 extern void* chan_make(int) __asm__ ("main.Chan_make");

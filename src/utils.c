@@ -91,3 +91,6 @@ void* go_malloc0(uintptr size) {
     return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, 0);
 }
 
+void go_run_finalizer(void (*f)(void *), void *obj) {
+    f(obj);
+}

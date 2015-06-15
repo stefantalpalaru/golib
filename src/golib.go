@@ -109,6 +109,9 @@ type bogus struct {
 	s string
 }
 
-func Set_finalizer(obj *bogus, finalizer func(*bogus)) {
-	runtime.SetFinalizer(obj, func(x *bogus) { finalizer(x) })
+//extern go_run_finalizer
+func go_run_finalizer(f unsafe.Pointer, obj *bogus)
+
+func Set_finalizer(obj *bogus, f unsafe.Pointer) {
+	runtime.SetFinalizer(obj, func(x *bogus) { go_run_finalizer(f, x) })
 }
