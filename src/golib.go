@@ -26,6 +26,7 @@ package main
 import (
 	// "fmt"
 	"reflect"
+	"runtime"
 	"time"
 	"unsafe"
 )
@@ -102,4 +103,8 @@ func Chan_select(cases *Chan_select_case, num_cases int) (chosen int, recv *int,
 
 func Sleep_ms(n int64) {
 	time.Sleep((time.Duration)(n) * time.Millisecond)
+}
+
+func Set_finalizer(obj unsafe.Pointer, finalizer func(unsafe.Pointer)) {
+	runtime.SetFinalizer(obj, finalizer)
 }

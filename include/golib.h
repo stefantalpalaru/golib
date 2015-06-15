@@ -78,6 +78,7 @@ extern void chan_close(void *) __asm__ ("main.Chan_close");
 extern void chan_dispose(void *) __asm__ ("main.Chan_dispose");
 extern chan_select_result chan_select(chan_select_case *, int) __asm__ ("main.Chan_select");
 extern void go_sleep_ms(int64) __asm__ ("main.Sleep_ms");
+extern void set_finalizer(void *, void (*f)(void *)) __asm__("main.Set_finalizer");
 
 #ifdef __cplusplus
 }
