@@ -110,5 +110,5 @@ type bogus struct {
 }
 
 func Set_finalizer(obj *bogus, finalizer func(*bogus)) {
-	runtime.SetFinalizer(obj, finalizer)
+	runtime.SetFinalizer(obj, func(x *bogus) { finalizer(x) })
 }
