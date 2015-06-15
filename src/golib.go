@@ -106,5 +106,5 @@ func Sleep_ms(n int64) {
 }
 
 func Set_finalizer(obj unsafe.Pointer, finalizer func(unsafe.Pointer)) {
-	runtime.SetFinalizer(obj, finalizer)
+	runtime.SetFinalizer((interface{})(obj), finalizer)
 }
