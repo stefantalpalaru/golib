@@ -105,6 +105,6 @@ func Sleep_ms(n int64) {
 	time.Sleep((time.Duration)(n) * time.Millisecond)
 }
 
-func Set_finalizer(obj unsafe.Pointer, finalizer func(unsafe.Pointer)) {
-	runtime.SetFinalizer((interface{})(obj), finalizer)
+func Set_finalizer(obj []byte, finalizer func([]byte)) {
+	runtime.SetFinalizer(obj, finalizer)
 }
