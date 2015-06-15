@@ -105,6 +105,10 @@ func Sleep_ms(n int64) {
 	time.Sleep((time.Duration)(n) * time.Millisecond)
 }
 
-func Set_finalizer(obj []byte, finalizer func([]byte)) {
+type bogus struct {
+	s string
+}
+
+func Set_finalizer(obj *bogus, finalizer func(*bogus)) {
 	runtime.SetFinalizer(obj, finalizer)
 }
