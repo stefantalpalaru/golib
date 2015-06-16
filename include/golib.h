@@ -76,7 +76,6 @@ extern void chan_send(void *, void *) __asm__ ("main.Chan_send");
 extern void* chan_recv(void *) __asm__ ("main.Chan_recv");
 extern chan_recv2_result chan_recv2(void *) __asm__ ("main.Chan_recv2");
 extern void chan_close(void *) __asm__ ("main.Chan_close");
-extern void chan_dispose(void *) __asm__ ("main.Chan_dispose");
 extern chan_select_result chan_select(chan_select_case *, int) __asm__ ("main.Chan_select");
 extern void go_sleep_ms(int64) __asm__ ("main.Sleep_ms");
 extern void set_finalizer(void *, void (*f)(void *)) __asm__("main.Set_finalizer");

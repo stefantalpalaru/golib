@@ -39,7 +39,6 @@ void whisper(void* args) {
     channels *chans = (channels *)args;
 
     *r = *(long *)chan_recv(chans->right);
-    chan_dispose(chans->right);
     *r += 1;
     chan_send(chans->left, r);
 }
@@ -74,7 +73,6 @@ void go_main() {
     }
     __go_go(first_whisper, right);
     res = *(long *)chan_recv(leftmost);
-    chan_dispose(leftmost);
     printf("%ld\n", res);
 }
 
