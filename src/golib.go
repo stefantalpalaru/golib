@@ -31,9 +31,6 @@ import (
 	"unsafe"
 )
 
-func Golib_init() {
-}
-
 func Chan_make(size int) chan *int {
 	c := make(chan *int, size)
 	return c

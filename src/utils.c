@@ -48,9 +48,7 @@ extern void runtime_mstart(void *);
 /*void* runtime_m() __attribute__ ((noinline, no_split_stack));*/
 extern void* runtime_m();
 extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag);
-
-// our golib.go symbols
-extern void golib_init() __asm__ ("main.Golib_init");
+extern void runtime_netpollinit(void);
 
 // have the GC scan the BSS
 extern char edata, end;
@@ -77,7 +75,7 @@ void golib_main(int argc, char **argv) {
     runtime_args(argc, argv);
     runtime_osinit();
     runtime_schedinit();
-    golib_init();
+    runtime_netpollinit();
     __go_go((void (*)(void *))runtime_main, NULL);
     runtime_mstart(runtime_m());
     abort();
