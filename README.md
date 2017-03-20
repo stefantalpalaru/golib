@@ -1,4 +1,4 @@
-#description
+## description
 
 **golib** is a library exposing Go's channels and goroutines to plain C and to any
 other language able to use C libraries.
@@ -11,18 +11,18 @@ There are two catches:
   technical reasons, so the channel/goroutine performance is lower and the
   memory usage is higher. Apparently because gccgo doesn't do escape analysis.
 
-#requirements
+## requirements
 
 - GCC with Go support (tested with gcc-4.9.2). You can build and use the
   library with Clang but you still need to link against libgo from GCC.
 
-#inspiration
+## inspiration
 
 - [this Stack Overflow response][8]
 - [uWSGI's gccgo plugin][4]
 - [GCC's libgo][5]
 
-#discussion
+## discussion
 
 The main problem with *libgo* is that it exposes extremely little in terms of a
 public API. Just the [function name mangling scheme][6] and [a couple of
@@ -43,7 +43,7 @@ installed binaries are excepted from stripping, like in the [Gentoo ebuild][9].
 Don't be alarmed by the use of Pthreads. *libgo* only uses it for mutexes, the
 coroutines are proper user-space M:N coroutines just like in Go.
 
-#build
+## build
 
 ```sh
 ./autogen.sh
@@ -51,13 +51,13 @@ coroutines are proper user-space M:N coroutines just like in Go.
 make
 ```
 
-#run tests
+## run tests
 
 ```sh
 make check
 ```
 
-#benchmarks
+## benchmarks
 
 ```sh
 /usr/bin/time -v ./benchmarks/cw-c
@@ -81,7 +81,7 @@ make clean
 make
 ```
 
-#API docs
+## API docs
 
 See the [benchmarks][2] and [tests][3]. We'll have proper documentation once the API is
 stable. Right now it's more of a technical preview.
@@ -91,11 +91,11 @@ should point to heap allocated memory. Freeing that memory is the receiver's
 responsibility. As an alternative, you can use Go's garbage collector from C by
 replacing malloc() with go\_malloc().
 
-#license
+## license
 
 BSD-2
 
-#credits
+## credits
 
 - author: Ștefan Talpalaru <stefantalpalaru@yahoo.com>
 
