@@ -6,10 +6,10 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
+list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -42,7 +42,7 @@ typedef unsigned int uint32  __attribute__((mode (SI)));
 extern void* __go_go(void (*f)(void *), void *);
 extern int32 runtime_gomaxprocsfunc(int32)
 #if GCC_VERSION >= 70100 // 7.1.0
-	__asm__("runtime.GOMAXPROCS")
+		__asm__("runtime.GOMAXPROCS")
 #endif
 ;
 extern int32 runtime_ncpu;
@@ -54,20 +54,20 @@ extern void runtime_gosched();
 #define SELECT_DIR_DEFAULT 3
 
 typedef struct chan_select_case {
-    uintptr dir;
-    void *chan;
-    void *send;
+	uintptr dir;
+	void *chan;
+	void *send;
 } chan_select_case;
 
 typedef struct chan_select_result {
-    int chosen;
-    void *recv;
-    _Bool recv_ok;
+	int chosen;
+	void *recv;
+	_Bool recv_ok;
 } chan_select_result;
 
 typedef struct chan_recv2_result {
-    void *recv;
-    _Bool ok;
+	void *recv;
+	_Bool ok;
 } chan_recv2_result;
 
 extern void golib_main(int argc, char **argv);

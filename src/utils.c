@@ -6,10 +6,10 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
+list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -60,74 +60,78 @@ extern void runtime_check()
 #if GCC_VERSION >= 70100 // 7.1.0
 	__asm__("runtime.check")
 #endif
-;
+	;
 extern void runtime_args(int32, char **)
 #if GCC_VERSION >= 70100 // 7.1.0
 	__asm__("runtime.args")
 #endif
-;
-extern void runtime_osinit();
-extern void runtime_schedinit();
-extern void runtime_main();
-extern void runtime_mstart(void *);
-extern void* runtime_m() __attribute__((noinline, no_split_stack));
-extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag);
-// extern void runtime_netpollinit(void); // not in gccgo-7.1.0
-extern void runtime_pollServerInit() __asm__("net.runtime_pollServerInit");
+	;
+	extern void runtime_osinit();
+	extern void runtime_schedinit();
+	extern void runtime_main();
+	extern void runtime_mstart(void *);
+	extern void* runtime_m() __attribute__((noinline, no_split_stack));
+	extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag);
+	// extern void runtime_netpollinit(void); // not in gccgo-7.1.0
+	extern void runtime_pollServerInit() __asm__("net.runtime_pollServerInit");
 
-// have the GC scan the BSS
-extern char edata, end;
-struct root_list {
-	struct root_list *next;
-	struct root {
-		void *decl;
-		size_t size;
-	} roots[];
-};
+	// have the GC scan the BSS
+	extern char edata, end;
+	struct root_list {
+		struct root_list *next;
+		struct root {
+			void *decl;
+			size_t size;
+		} roots[];
+	};
 extern void __go_register_gc_roots (struct root_list* r);
 static struct root_list bss_roots = {
-    NULL,
-    { { NULL, 0 },
-      { NULL, 0 } },
+	NULL,
+	{ { NULL, 0 },
+		{ NULL, 0 } },
 };
 
-void golib_main(int argc, char **argv) {
+void golib_main(int argc, char **argv)
+{
 #if GCC_VERSION >= 70100 // 7.1.0
 	runtime_isarchive = false;
 	runtime_isstarted = true;
 
 	runtime_cpuinit();
 #endif
-    runtime_check();
-    /*printf("edata=%p, end=%p, end-edata=%d\n", &edata, &end, &end - &edata);*/
-    bss_roots.roots[0].decl = &edata;
-    bss_roots.roots[0].size = &end - &edata;
-    __go_register_gc_roots(&bss_roots);
-    runtime_args(argc, argv);
+	runtime_check();
+	/*printf("edata=%p, end=%p, end-edata=%d\n", &edata, &end, &end - &edata);*/
+	bss_roots.roots[0].decl = &edata;
+	bss_roots.roots[0].size = &end - &edata;
+	__go_register_gc_roots(&bss_roots);
+	runtime_args(argc, argv);
 #if GCC_VERSION >= 80000 // 8.0.0
-    setncpu(getproccount());
-    setpagesize(getpagesize());
+	setncpu(getproccount());
+	setpagesize(getpagesize());
 #else
-    runtime_osinit();
+	runtime_osinit();
 #endif
 #if GCC_VERSION >= 70100 // 7.1.0
-    runtime_sched = runtime_getsched();
+	runtime_sched = runtime_getsched();
 #endif
-    runtime_schedinit();
-    runtime_pollServerInit();
-    __go_go((void (*)(void *))runtime_main, NULL);
-    runtime_mstart(runtime_m());
-    abort();
+	runtime_schedinit();
+	runtime_pollServerInit();
+	__go_go((void (*)(void *))runtime_main, NULL);
+	runtime_mstart(runtime_m());
+	abort();
 }
 
-void* go_malloc(uintptr size) {
-    return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, FlagNoZero);
+void* go_malloc(uintptr size)
+{
+	return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, FlagNoZero);
 }
 
-void* go_malloc0(uintptr size) {
-    return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, 0);
+void* go_malloc0(uintptr size)
+{
+	return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, 0);
 }
 
-void go_run_finalizer(void (*f)(void *), void *obj) {
-    f(obj);
+void go_run_finalizer(void (*f)(void *), void *obj)
+{
+	f(obj);
 }
