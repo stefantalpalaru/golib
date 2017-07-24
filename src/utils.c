@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+Copyright (c) 2015-2017, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -24,9 +24,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <stdlib.h>
+#include <unistd.h>
 #include "golib.h"
 
-#define ROUND(x, n) (((x)+(n)-1)&~(uintptr)((n)-1))
+#define ROUND(x, n) (((x) + (n) - 1) & ~(uintptr)((n) - 1))
+
+typedef _Bool bool;
+enum {
+	false	= 0,
+	true	= 1,
+};
+
 enum
 {
 	// flags to malloc
@@ -37,18 +45,35 @@ enum
 	FlagNoInvokeGC	= 1<<4, // don't invoke GC
 };
 
-// libgo symbols
-extern void runtime_check();
-extern void runtime_args(int, char **);
+// libgo symbols that we don't need to export in golib.h
+#if GCC_VERSION >= 70100 // 7.1.0
+extern bool runtime_isarchive;
+extern bool runtime_isstarted;
+extern void runtime_cpuinit();
+extern void setncpu(int32) __asm__("runtime.setncpu");
+extern int32 getproccount();
+extern void setpagesize(uintptr) __asm__("runtime.setpagesize");
+extern void* runtime_sched;
+extern void* runtime_getsched() __asm__("runtime.getsched");
+#endif
+extern void runtime_check()
+#if GCC_VERSION >= 70100 // 7.1.0
+	__asm__("runtime.check")
+#endif
+;
+extern void runtime_args(int32, char **)
+#if GCC_VERSION >= 70100 // 7.1.0
+	__asm__("runtime.args")
+#endif
+;
 extern void runtime_osinit();
 extern void runtime_schedinit();
 extern void runtime_main();
 extern void runtime_mstart(void *);
-// no_split_stack is the key to avoid crashing !!! [uWSGI comment, I don't see crashes with gcc-4.9.2]
-/*void* runtime_m() __attribute__ ((noinline, no_split_stack));*/
-extern void* runtime_m();
+extern void* runtime_m() __attribute__((noinline, no_split_stack));
 extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag);
-extern void runtime_netpollinit(void);
+// extern void runtime_netpollinit(void); // not in gccgo-7.1.0
+extern void runtime_pollServerInit() __asm__("net.runtime_pollServerInit");
 
 // have the GC scan the BSS
 extern char edata, end;
@@ -67,15 +92,29 @@ static struct root_list bss_roots = {
 };
 
 void golib_main(int argc, char **argv) {
+#if GCC_VERSION >= 70100 // 7.1.0
+	runtime_isarchive = false;
+	runtime_isstarted = true;
+
+	runtime_cpuinit();
+#endif
     runtime_check();
     /*printf("edata=%p, end=%p, end-edata=%d\n", &edata, &end, &end - &edata);*/
     bss_roots.roots[0].decl = &edata;
     bss_roots.roots[0].size = &end - &edata;
     __go_register_gc_roots(&bss_roots);
     runtime_args(argc, argv);
+#if GCC_VERSION >= 80000 // 8.0.0
+    setncpu(getproccount());
+    setpagesize(getpagesize());
+#else
     runtime_osinit();
+#endif
+#if GCC_VERSION >= 70100 // 7.1.0
+    runtime_sched = runtime_getsched();
+#endif
     runtime_schedinit();
-    runtime_netpollinit();
+    runtime_pollServerInit();
     __go_go((void (*)(void *))runtime_main, NULL);
     runtime_mstart(runtime_m());
     abort();

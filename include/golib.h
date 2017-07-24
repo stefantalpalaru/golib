@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+Copyright (c) 2015-2017, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,17 +30,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+#define GCC_VERSION (__GNUC__ * 10000 \
+		     + __GNUC_MINOR__ * 100 \
+		     + __GNUC_PATCHLEVEL__)
+
 // libgo symbols
-typedef signed int int32 __attribute__ ((mode (SI)));
-typedef signed int int64 __attribute__ ((mode (DI)));
-typedef unsigned int uintptr __attribute__ ((mode (pointer)));
-typedef unsigned int uint32  __attribute__ ((mode (SI)));
-/*extern void runtime_netpollinit();*/
-/*extern void runtime_lockOSThread();*/
+typedef signed int int32 __attribute__((mode (SI)));
+typedef signed int int64 __attribute__((mode (DI)));
+typedef unsigned int uintptr __attribute__((mode (pointer)));
+typedef unsigned int uint32  __attribute__((mode (SI)));
 extern void* __go_go(void (*f)(void *), void *);
-extern int32 runtime_gomaxprocsfunc(int32);
+extern int32 runtime_gomaxprocsfunc(int32)
+#if GCC_VERSION >= 70100 // 7.1.0
+	__asm__("runtime.GOMAXPROCS")
+#endif
+;
 extern int32 runtime_ncpu;
-//extern void __go_free(void *);
 extern void runtime_gosched();
 
 // helpers
@@ -71,13 +76,13 @@ extern void* go_malloc0(uintptr size);
 extern void go_run_finalizer(void (*f)(void *), void *obj);
 
 // our golib.go symbols
-extern void* chan_make(int) __asm__ ("main.Chan_make");
-extern void chan_send(void *, void *) __asm__ ("main.Chan_send");
-extern void* chan_recv(void *) __asm__ ("main.Chan_recv");
-extern chan_recv2_result chan_recv2(void *) __asm__ ("main.Chan_recv2");
-extern void chan_close(void *) __asm__ ("main.Chan_close");
-extern chan_select_result chan_select(chan_select_case *, int) __asm__ ("main.Chan_select");
-extern void go_sleep_ms(int64) __asm__ ("main.Sleep_ms");
+extern void* chan_make(int) __asm__("main.Chan_make");
+extern void chan_send(void *, void *) __asm__("main.Chan_send");
+extern void* chan_recv(void *) __asm__("main.Chan_recv");
+extern chan_recv2_result chan_recv2(void *) __asm__("main.Chan_recv2");
+extern void chan_close(void *) __asm__("main.Chan_close");
+extern chan_select_result chan_select(chan_select_case *, int) __asm__("main.Chan_select");
+extern void go_sleep_ms(int64) __asm__("main.Sleep_ms");
 extern void set_finalizer(void *, void (*f)(void *)) __asm__("main.Set_finalizer");
 
 #ifdef __cplusplus

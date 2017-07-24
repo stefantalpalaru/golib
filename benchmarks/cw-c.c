@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+Copyright (c) 2015-2017, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// we are not freeing allocated memory but we make up for it by also disabling the GC in the Go version
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -52,8 +51,8 @@ void first_whisper(void* chan) {
 
 void go_main() __asm__ ("main.main");
 void go_main() {
-    // a slowdown in this scenario for gccgo-4.9.2 but not for go-1.4.2
-    /*runtime_gomaxprocsfunc(runtime_ncpu);*/
+    // a slowdown in this scenario for gccgo-6.3.0 but not for gcc-7.1.0 or Go
+    runtime_gomaxprocsfunc(runtime_ncpu);
 
     const long n = 500000;
     void *leftmost = chan_make(0);

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+// Copyright (c) 2015-2017, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ func Chan_select(cases *Chan_select_case, num_cases int) (chosen int, recv *int,
 		} else {
 			send = reflect.ValueOf(cases2[i].Send)
 		}
-		select_cases[i] = reflect.SelectCase{dir, c, send}
+		select_cases[i] = reflect.SelectCase{Dir: dir, Chan: c, Send: send}
 	}
 	var recv_val reflect.Value
 	chosen, recv_val, recv_ok = reflect.Select(select_cases)

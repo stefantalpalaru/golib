@@ -9,12 +9,11 @@ There are two catches:
   assembler name of *'main.main'* (see examples).
 - we use gccgo (from upstream GCC) instead of the main Go toolchain, for
   technical reasons, so the channel/goroutine performance is lower and the
-  memory usage is higher. Apparently because gccgo doesn't do escape analysis.
+  memory usage is higher.
 
 ## requirements
 
-- GCC with Go support (tested with gcc-4.9.2). You can build and use the
-  library with Clang but you still need to link against libgo from GCC.
+- GCC with Go support (tested with GCC 6.3.0, 7.1.0).
 
 ## inspiration
 
@@ -64,19 +63,17 @@ make check
 /usr/bin/time -v ./benchmarks/cw-go
 ```
 
-With the [chinese whispers benchmark][1] I see on my system (gcc-4.9.2, go-1.4.2,
-AMD FX-8320E, Linux 4.0.0 x86\_64) that the **golib** version is 2.4 times slower
-and uses 4.1 times more memory than the go version. This should be a worst case
+With the [chinese whispers benchmark][1] I see on my system (gcc-7.1.0, go-1.8.3,
+AMD FX-8320E, Linux 4.11.0-pf7 x86\_64) that the **golib** version is 3.2 times slower
+and uses 3.9 times more memory than the go version. This should be a worst case
 scenario since the benchmark creates 500000 goroutines and then passes integers
 from one to the other, incrementing them with each pass. So it's basically
-testing the concurrency and message passing overhead. An interesting aspect is
-that enabling multiple core usage speeds up slightly the go version while
-slowing down the gccgo one. But look at the bright side: when gccgo improves,
-**golib** will reap the benefits ;-)
+testing the concurrency and message passing overhead. But look at the bright
+side: when gccgo improves, **golib** will reap the benefits ;-)
 
 Instructions for building with non-default compilers:
 ```sh
-./configure CC=gcc-5.1.0 GOC=gccgo-5.1.0
+./configure CC=gcc-7.1.0 GOC=gccgo-7.1.0
 make clean
 make
 ```

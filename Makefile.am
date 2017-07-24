@@ -22,7 +22,7 @@ TESTS = $(check_PROGRAMS)
 # gccgo benchmarks
 noinst_DATA = benchmarks/cw-go-gccgo
 benchmarks/%-go-gccgo: benchmarks/%-go.go
-	$(GOC) $(CFLAGS) $(LDFLAGS) $< -o $@
+	$(GOC) $(GCCGOFLAGS) $(LDFLAGS) $< -o $@
 
 # Go benchmarks
 if HAVE_GO
@@ -49,7 +49,7 @@ EXTRA_DIST := benchmarks/*-go.go \
 LTCOMPILE_GO = $(LIBTOOL) $(AM_V_lt) --tag=GO $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=compile $(GOC) $(DEFS) \
 	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CFLAGS) $(CFLAGS)
+	$(GCCGOFLAGS)
 .go.lo:
 	$(LTCOMPILE_GO) -c $< -o $@
 
