@@ -40,6 +40,7 @@ benchmarks_cw_c_LDADD = libgolib.la -lgo
 benchmarks_cw_c_LDFLAGS = -no-install
 
 EXTRA_DIST := benchmarks/*-go.go \
+	m4 \
 	tests/*.go \
 	.ycm_extra_conf.py \
 	autogen.sh \
