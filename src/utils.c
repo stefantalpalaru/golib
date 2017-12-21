@@ -60,30 +60,30 @@ extern void runtime_check()
 #if GCC_VERSION >= 70100 // 7.1.0
 	__asm__("runtime.check")
 #endif
-	;
+;
 extern void runtime_args(int32, char **)
 #if GCC_VERSION >= 70100 // 7.1.0
 	__asm__("runtime.args")
 #endif
-	;
-	extern void runtime_osinit();
-	extern void runtime_schedinit();
-	extern void runtime_main();
-	extern void runtime_mstart(void *);
-	extern void* runtime_m() __attribute__((noinline, no_split_stack));
-	extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag);
-	// extern void runtime_netpollinit(void); // not in gccgo-7.1.0
-	extern void runtime_pollServerInit() __asm__("net.runtime_pollServerInit");
+;
+extern void runtime_osinit();
+extern void runtime_schedinit();
+extern void runtime_main();
+extern void runtime_mstart(void *);
+extern void* runtime_m() __attribute__((noinline, no_split_stack));
+extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag);
+// extern void runtime_netpollinit(void); // not in gccgo-7.1.0
+extern void runtime_pollServerInit() __asm__("net.runtime_pollServerInit");
 
-	// have the GC scan the BSS
-	extern char edata, end;
-	struct root_list {
-		struct root_list *next;
-		struct root {
-			void *decl;
-			size_t size;
-		} roots[];
-	};
+// have the GC scan the BSS
+extern char edata, end;
+struct root_list {
+	struct root_list *next;
+	struct root {
+		void *decl;
+		size_t size;
+	} roots[];
+};
 extern void __go_register_gc_roots (struct root_list* r);
 static struct root_list bss_roots = {
 	NULL,
