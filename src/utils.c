@@ -87,8 +87,10 @@ struct root_list {
 extern void __go_register_gc_roots (struct root_list* r);
 static struct root_list bss_roots = {
 	NULL,
-	{ { NULL, 0 },
-		{ NULL, 0 } },
+	{
+		{ NULL, 0 },
+		{ NULL, 0 },
+	},
 };
 
 void golib_main(int argc, char **argv)
