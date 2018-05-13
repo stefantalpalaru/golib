@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015-2017, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+Copyright (c) 2015-2018, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ void go_main() __asm__ ("main.main");
 void go_main()
 {
 	// a slowdown in this scenario for gccgo-6.3.0 but not for gcc-7.1.0 or Go
-	runtime_gomaxprocsfunc(runtime_ncpu);
+	runtime_gomaxprocsfunc(getproccount());
 
 	const long n = 500000;
 	void *leftmost = chan_make(0);

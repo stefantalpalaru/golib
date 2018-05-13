@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015-2017, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+Copyright (c) 2015-2018, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,10 @@ extern int32 runtime_gomaxprocsfunc(int32)
 		__asm__("runtime.GOMAXPROCS")
 #endif
 ;
-extern int32 runtime_ncpu;
 extern void runtime_gosched();
+#if GCC_VERSION >= 70100 // 7.1.0
+extern int32 getproccount();
+#endif
 
 // helpers
 #define SELECT_DIR_SEND 1

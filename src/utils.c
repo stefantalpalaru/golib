@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015-2017, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+Copyright (c) 2015-2018, Ștefan Talpalaru <stefantalpalaru@yahoo.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,6 @@ extern bool runtime_isarchive;
 extern bool runtime_isstarted;
 extern void runtime_cpuinit();
 extern void setncpu(int32) __asm__("runtime.setncpu");
-extern int32 getproccount();
 extern void setpagesize(uintptr) __asm__("runtime.setpagesize");
 extern void* runtime_sched;
 extern void* runtime_getsched() __asm__("runtime.getsched");
@@ -67,29 +66,75 @@ extern void runtime_args(int32, char **)
 #endif
 ;
 extern void runtime_osinit();
-extern void runtime_schedinit();
-extern void runtime_main();
+extern void runtime_schedinit()
+#if GCC_VERSION >= 80100 // 8.1.0
+	__asm__("runtime.schedinit");
+#endif
+;
+extern void runtime_main()
+#if GCC_VERSION >= 80100 // 8.1.0
+	__asm__("runtime.main");
+#endif
+;
 extern void runtime_mstart(void *);
 extern void* runtime_m() __attribute__((noinline, no_split_stack));
-extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag);
+extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag)
+#if GCC_VERSION >= 80100 // 8.1.0
+	__asm__("runtime.mallocgc");
+#endif
+;
 // extern void runtime_netpollinit(void); // not in gccgo-7.1.0
-extern void runtime_pollServerInit() __asm__("net.runtime_pollServerInit");
+extern void runtime_pollServerInit()
+#if GCC_VERSION >= 80100 // 8.1.0
+	__asm__("internal_poll.runtime_pollServerInit")
+#else
+	__asm__("net.runtime_pollServerInit")
+#endif
+;
 
 // have the GC scan the BSS
 extern char edata, end;
 struct root_list {
 	struct root_list *next;
+#if GCC_VERSION >= 80100 // 8.1.0
+	int count;
+#endif
 	struct root {
 		void *decl;
 		size_t size;
+#if GCC_VERSION >= 80100 // 8.1.0
+		size_t ptrdata;
+		unsigned int *gcdata;
+#endif
 	} roots[];
 };
-extern void __go_register_gc_roots (struct root_list* r);
+extern void __go_register_gc_roots (struct root_list* r)
+#if GCC_VERSION >= 80100 // 8.1.0
+	__asm__("runtime.registerGCRoots")
+#endif
+;
 static struct root_list bss_roots = {
 	NULL,
+#if GCC_VERSION >= 80100 // 8.1.0
+	1,
+#endif
 	{
-		{ NULL, 0 },
-		{ NULL, 0 },
+		{
+			NULL,
+			0,
+#if GCC_VERSION >= 80100 // 8.1.0
+			0,
+			NULL,
+#endif
+		},
+		{
+			NULL,
+			0,
+#if GCC_VERSION >= 80100 // 8.1.0
+			0,
+			NULL,
+#endif
+		},
 	},
 };
 

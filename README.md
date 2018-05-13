@@ -13,7 +13,7 @@ There are two catches:
 
 ## requirements
 
-- GCC with Go support (tested with GCC 6.3.0, 7.1.0).
+- GCC with Go support (tested with GCC 7.3.0, 8.1.0).
 
 ## inspiration
 
