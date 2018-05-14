@@ -39,6 +39,7 @@ typedef signed int int32 __attribute__((mode (SI)));
 typedef signed int int64 __attribute__((mode (DI)));
 typedef unsigned int uintptr __attribute__((mode (pointer)));
 typedef unsigned int uint32  __attribute__((mode (SI)));
+typedef unsigned int uint64  __attribute__((mode (DI)));
 extern void* __go_go(void (*f)(void *), void *);
 extern int32 runtime_gomaxprocsfunc(int32)
 #if GCC_VERSION >= 70100 // 7.1.0
@@ -88,6 +89,19 @@ extern void chan_close(void *) __asm__("main.Chan_close");
 extern chan_select_result chan_select(chan_select_case *, int) __asm__("main.Chan_select");
 extern void go_sleep_ms(int64) __asm__("main.Sleep_ms");
 extern void set_finalizer(void *, void (*f)(void *)) __asm__("main.Set_finalizer");
+// keep this in sync with golib.go
+typedef struct mem_stats {
+	uint64 alloc; // bytes allocated and not yet freed
+	uint64 total_alloc; // bytes allocated (even if freed)
+	uint64 sys; // bytes obtained from system
+	uint64 nlookup; // number of pointer lookups
+	uint64 nmalloc; // number of mallocs
+	uint64 nfree; // number of frees
+	uint64 heap_objects; // total number of allocated objects
+	uint64 pause_total_ns; // cumulative nanoseconds in GC stop-the-world pauses since the program started
+	uint32 numgc; // number of completed GC cycles
+} mem_stats;
+extern mem_stats go_mem_stats();
 
 #ifdef __cplusplus
 }

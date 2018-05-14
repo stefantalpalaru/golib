@@ -102,6 +102,9 @@ extern void runtime_pollServerInit()
 #endif
 ;
 
+// golib.go symbols that we don't need to export in golib.h
+extern mem_stats get_mem_stats() __asm__("main.Get_mem_stats");
+
 // have the GC scan the BSS
 extern char edata, end;
 struct root_list {
@@ -210,5 +213,11 @@ void go_gc()
 #else
 	runtime_gc(2);
 #endif
+}
+
+// memory statistics
+mem_stats go_mem_stats()
+{
+	return get_mem_stats();
 }
 

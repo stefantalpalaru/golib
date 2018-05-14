@@ -104,3 +104,32 @@ func go_run_finalizer(f unsafe.Pointer, obj *bogus)
 func Set_finalizer(obj *bogus, f unsafe.Pointer) {
 	runtime.SetFinalizer(obj, func(x *bogus) { go_run_finalizer(f, x) })
 }
+
+// keep this in sync with golib.h
+type mem_stats struct {
+	alloc          uint64
+	total_alloc    uint64
+	sys            uint64
+	nlookup        uint64
+	nmalloc        uint64
+	nfree          uint64
+	heap_objects   uint64
+	pause_total_ns uint64
+	numgc          uint32
+}
+
+func Get_mem_stats() mem_stats {
+	var ms runtime.MemStats
+	runtime.ReadMemStats(&ms)
+	return mem_stats{
+		ms.Alloc,
+		ms.TotalAlloc,
+		ms.Sys,
+		ms.Lookups,
+		ms.Mallocs,
+		ms.Frees,
+		ms.HeapObjects,
+		ms.PauseTotalNs,
+		ms.NumGC,
+	}
+}
