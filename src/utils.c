@@ -68,26 +68,31 @@ extern void runtime_args(int32, char **)
 extern void runtime_osinit();
 extern void runtime_schedinit()
 #if GCC_VERSION >= 80100 // 8.1.0
-	__asm__("runtime.schedinit");
+	__asm__("runtime.schedinit")
 #endif
 ;
 extern void runtime_main()
 #if GCC_VERSION >= 80100 // 8.1.0
-	__asm__("runtime.main");
+	__asm__("runtime.main")
 #endif
 ;
 extern void runtime_mstart(void *);
 extern void* runtime_m() __attribute__((noinline, no_split_stack));
 extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag)
 #if GCC_VERSION >= 80100 // 8.1.0
-	__asm__("runtime.mallocgc");
+	__asm__("runtime.mallocgc")
 #endif
 ;
 extern void runtime_gosched()
 #if GCC_VERSION >= 80100 // 8.1.0
-	__asm__("runtime.Gosched");
+	__asm__("runtime.Gosched")
 #endif
 ;
+#if GCC_VERSION >= 80100 // 8.1.0
+extern void runtime_gc() __asm__("runtime.GC");
+#else
+extern void runtime_gc(int32);
+#endif
 // extern void runtime_netpollinit(void); // not in gccgo-7.1.0
 extern void runtime_pollServerInit()
 #if GCC_VERSION >= 80100 // 8.1.0
@@ -178,6 +183,7 @@ void* go_malloc(uintptr size)
 	return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, FlagNoZero);
 }
 
+// this version zeroes the allocated memory
 void* go_malloc0(uintptr size)
 {
 	return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, 0);
@@ -187,9 +193,22 @@ void go_run_finalizer(void (*f)(void *), void *obj)
 {
 	f(obj);
 }
-// wrapper to handle GCC's constant naming changes from Nim code
+
+// wrappers to handle GCC's constant naming changes from Nim code
+
+// yield execution to another goroutine
 void go_yield()
 {
 	runtime_gosched();
+}
+
+// run the garbage collector
+void go_gc()
+{
+#if GCC_VERSION >= 80100 // 8.1.0
+	runtime_gc();
+#else
+	runtime_gc(2);
+#endif
 }
 
