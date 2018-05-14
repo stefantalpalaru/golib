@@ -83,6 +83,11 @@ extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag)
 	__asm__("runtime.mallocgc");
 #endif
 ;
+extern void runtime_gosched()
+#if GCC_VERSION >= 80100 // 8.1.0
+	__asm__("runtime.Gosched");
+#endif
+;
 // extern void runtime_netpollinit(void); // not in gccgo-7.1.0
 extern void runtime_pollServerInit()
 #if GCC_VERSION >= 80100 // 8.1.0
@@ -182,3 +187,9 @@ void go_run_finalizer(void (*f)(void *), void *obj)
 {
 	f(obj);
 }
+// wrapper to handle GCC's constant naming changes from Nim code
+void go_yield()
+{
+	runtime_gosched();
+}
+
