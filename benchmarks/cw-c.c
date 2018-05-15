@@ -36,7 +36,9 @@ typedef struct channels {
 void whisper(void* args)
 {
 	long *r = (long *)go_malloc(sizeof(long));
-	channels *chans = (channels *)args;
+	/*channels *chans = (channels *)args;*/
+	channels *chans;
+	writebarrierptr((void**)&chans, args);
 
 	*r = *(long *)chan_recv(chans->right);
 	*r += 1;
@@ -58,20 +60,31 @@ void go_main()
 	runtime_gomaxprocsfunc(getproccount());
 
 	const long n = 500000;
-	void *leftmost = chan_make(0);
-	void *right = leftmost;
-	void *left = leftmost;
+	/*void *leftmost = chan_make(0);*/
+	void *leftmost;
+	writebarrierptr(&leftmost, chan_make(0));
+	/*void *right = leftmost;*/
+	void *right;
+	writebarrierptr(&right, leftmost);
+	/*void *left = leftmost;*/
+	void *left;
+	writebarrierptr(&left, leftmost);
 	long i;
 	long res;
 	channels *chans;
 
 	for(i = 0; i < n; i++) {
-		right = chan_make(0);
-		chans = (channels *)go_malloc(sizeof(channels));
-		chans->left = left;
-		chans->right = right;
+		/*right = chan_make(0);*/
+		writebarrierptr(&right, chan_make(0));
+		/*chans = (channels *)go_malloc(sizeof(channels));*/
+		writebarrierptr((void**)&chans, go_malloc(sizeof(channels)));
+		/*chans->left = left;*/
+		writebarrierptr(&(chans->left), left);
+		/*chans->right = right;*/
+		writebarrierptr(&(chans->right), right);
 		__go_go(whisper, chans);
-		left = right;
+		/*left = right;*/
+		writebarrierptr(&left, right);
 	}
 	__go_go(first_whisper, right);
 	res = *(long *)chan_recv(leftmost);

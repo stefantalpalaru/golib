@@ -35,21 +35,16 @@ extern "C" {
 		     + __GNUC_PATCHLEVEL__)
 
 // libgo symbols
+typedef signed int int8 __attribute__((mode (QI)));
 typedef signed int int32 __attribute__((mode (SI)));
 typedef signed int int64 __attribute__((mode (DI)));
 typedef unsigned int uintptr __attribute__((mode (pointer)));
+typedef unsigned int uint8   __attribute__ ((mode (QI)));
 typedef unsigned int uint32  __attribute__((mode (SI)));
 typedef unsigned int uint64  __attribute__((mode (DI)));
 extern void* __go_go(void (*f)(void *), void *);
-extern int32 runtime_gomaxprocsfunc(int32)
-#if GCC_VERSION >= 70100 // 7.1.0
-		__asm__("runtime.GOMAXPROCS")
-#endif
-;
-extern void runtime_gosched();
-#if GCC_VERSION >= 70100 // 7.1.0
+extern int32 runtime_gomaxprocsfunc(int32) __asm__("runtime.GOMAXPROCS");
 extern int32 getproccount();
-#endif
 
 // helpers
 #define SELECT_DIR_SEND 1
@@ -73,12 +68,12 @@ typedef struct chan_recv2_result {
 	_Bool ok;
 } chan_recv2_result;
 
-extern void golib_main(int argc, char **argv);
+extern int golib_main(int argc, char **argv);
 extern void* go_malloc(uintptr size);
-extern void* go_malloc0(uintptr size);
 extern void go_run_finalizer(void (*f)(void *), void *obj);
 extern void go_yield();
 extern void go_gc();
+extern void typedmemmove(void *dest, void *src, uintptr size) __attribute__((no_split_stack));
 
 // our golib.go symbols
 extern void* chan_make(int) __asm__("main.Chan_make");
@@ -89,6 +84,7 @@ extern void chan_close(void *) __asm__("main.Chan_close");
 extern chan_select_result chan_select(chan_select_case *, int) __asm__("main.Chan_select");
 extern void go_sleep_ms(int64) __asm__("main.Sleep_ms");
 extern void set_finalizer(void *, void (*f)(void *)) __asm__("main.Set_finalizer");
+extern void writebarrierptr(void **dest, void *src) __asm__("main.Atomic_store_pointer");
 // keep this in sync with golib.go
 typedef struct mem_stats {
 	uint64 alloc; // bytes allocated and not yet freed

@@ -23,8 +23,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include "golib.h"
 
 #define ROUND(x, n) (((x) + (n) - 1) & ~(uintptr)((n) - 1))
@@ -35,36 +37,17 @@ enum {
 	true	= 1,
 };
 
-enum
-{
-	// flags to malloc
-	FlagNoScan	= 1<<0,	// GC doesn't have to scan object
-	FlagNoProfiling	= 1<<1,	// must not profile
-	FlagNoGC	= 1<<2,	// must not free or scan for pointers
-	FlagNoZero	= 1<<3, // don't zero memory
-	FlagNoInvokeGC	= 1<<4, // don't invoke GC
-};
-
 // libgo symbols that we don't need to export in golib.h
-#if GCC_VERSION >= 70100 // 7.1.0
 extern bool runtime_isarchive;
 extern bool runtime_isstarted;
+extern bool runtime_iscgo;
 extern void runtime_cpuinit();
 extern void setncpu(int32) __asm__("runtime.setncpu");
 extern void setpagesize(uintptr) __asm__("runtime.setpagesize");
 extern void* runtime_sched;
 extern void* runtime_getsched() __asm__("runtime.getsched");
-#endif
-extern void runtime_check()
-#if GCC_VERSION >= 70100 // 7.1.0
-	__asm__("runtime.check")
-#endif
-;
-extern void runtime_args(int32, char **)
-#if GCC_VERSION >= 70100 // 7.1.0
-	__asm__("runtime.args")
-#endif
-;
+extern void runtime_check() __asm__("runtime.check");
+extern void runtime_args(int32, char **) __asm__("runtime.args");
 extern void runtime_osinit();
 extern void runtime_schedinit()
 #if GCC_VERSION >= 80100 // 8.1.0
@@ -78,11 +61,6 @@ extern void runtime_main()
 ;
 extern void runtime_mstart(void *);
 extern void* runtime_m() __attribute__((noinline, no_split_stack));
-extern void* runtime_mallocgc(uintptr size, uintptr typ, uint32 flag)
-#if GCC_VERSION >= 80100 // 8.1.0
-	__asm__("runtime.mallocgc")
-#endif
-;
 extern void runtime_gosched()
 #if GCC_VERSION >= 80100 // 8.1.0
 	__asm__("runtime.Gosched")
@@ -93,7 +71,6 @@ extern void runtime_gc() __asm__("runtime.GC");
 #else
 extern void runtime_gc(int32);
 #endif
-// extern void runtime_netpollinit(void); // not in gccgo-7.1.0
 extern void runtime_pollServerInit()
 #if GCC_VERSION >= 80100 // 8.1.0
 	__asm__("internal_poll.runtime_pollServerInit")
@@ -101,12 +78,33 @@ extern void runtime_pollServerInit()
 	__asm__("net.runtime_pollServerInit")
 #endif
 ;
+extern void runtime_setIsCgo() __asm__("runtime.setIsCgo");
+// partial struct head from gcc/libgo/go/reflect/type.go
+typedef struct rtype {
+	uintptr size;
+	uintptr ptrdata;	// size of memory prefix holding all pointers
+	uint32  hash;		// hash of type; avoids computation in hash tables
+	uint8   kind;		// enumeration for C
+	int8	align;		// alignment of variable with this type
+	uint8	fieldAlign;	// alignment of struct field with this type
+	uint8	_;		// unused/padding
+
+	uintptr hashfn;		// hash function
+	uintptr equalfn;	// equality function
+
+	uint8	*gcdata ;	// garbage collection data
+} rtype;
+extern void runtime_typedmemmove(rtype *typ, void *dest, void *src) __asm__("runtime.typedmemmove");
+extern void* allocate_array_of_pointers(uintptr num) __asm__("main.Allocate_array_of_pointers");
 
 // golib.go symbols that we don't need to export in golib.h
 extern mem_stats get_mem_stats() __asm__("main.Get_mem_stats");
 
 // have the GC scan the BSS
 extern char edata, end;
+extern char **environ;
+extern uint8 _end[];
+uintptr __go_end;
 struct root_list {
 	struct root_list *next;
 #if GCC_VERSION >= 80100 // 8.1.0
@@ -119,7 +117,7 @@ struct root_list {
 		size_t ptrdata;
 		unsigned int *gcdata;
 #endif
-	} roots[];
+	} roots[2];
 };
 extern void __go_register_gc_roots (struct root_list* r)
 #if GCC_VERSION >= 80100 // 8.1.0
@@ -151,16 +149,22 @@ static struct root_list bss_roots = {
 	},
 };
 
-void golib_main(int argc, char **argv)
+// from GCC's libgo/runtime/go-main.c
+int golib_main(int argc, char **argv)
 {
-#if GCC_VERSION >= 70100 // 7.1.0
 	runtime_isarchive = false;
+	if (runtime_isstarted)
+		return 0;
 	runtime_isstarted = true;
 
+	if (runtime_iscgo)
+		runtime_setIsCgo();
+
+	__go_end = (uintptr)_end;
+	/*printf("_end=%p\n", _end);*/
 	runtime_cpuinit();
-#endif
 	runtime_check();
-	/*printf("edata=%p, end=%p, end-edata=%d\n", &edata, &end, &end - &edata);*/
+	/*printf("edata=%p, end=%p, end-edata=%ld\n", &edata, &end, &end - &edata);*/
 	bss_roots.roots[0].decl = &edata;
 	bss_roots.roots[0].size = &end - &edata;
 	__go_register_gc_roots(&bss_roots);
@@ -171,9 +175,7 @@ void golib_main(int argc, char **argv)
 #else
 	runtime_osinit();
 #endif
-#if GCC_VERSION >= 70100 // 7.1.0
 	runtime_sched = runtime_getsched();
-#endif
 	runtime_schedinit();
 	runtime_pollServerInit();
 	__go_go((void (*)(void *))runtime_main, NULL);
@@ -183,13 +185,7 @@ void golib_main(int argc, char **argv)
 
 void* go_malloc(uintptr size)
 {
-	return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, FlagNoZero);
-}
-
-// this version zeroes the allocated memory
-void* go_malloc0(uintptr size)
-{
-	return runtime_mallocgc(ROUND(size, sizeof(void*)), 0, 0);
+	return allocate_array_of_pointers(ROUND(size, sizeof(void*)) / sizeof(void*));
 }
 
 void go_run_finalizer(void (*f)(void *), void *obj)
@@ -219,5 +215,27 @@ void go_gc()
 mem_stats go_mem_stats()
 {
 	return get_mem_stats();
+}
+
+void typedmemmove(void *dest, void *src, uintptr size)
+{
+	// round it down to pointer size
+	uintptr new_size = size & ~(sizeof(void*) - 1);
+
+	if(new_size) {
+		// check the pointer alignment of dest and src
+		if ((((uintptr)dest|(uintptr)src) & (sizeof(void*) - 1)) == 0) {
+			rtype typ;
+			typ.kind = 0;
+			typ.size = new_size;
+			runtime_typedmemmove(&typ, dest, src);
+		} else {
+			// the pointers are missaligned, so let memmove() do all the copying
+			new_size = 0;
+		}
+	}
+	if(size > new_size) {
+		memmove(dest + new_size, src + new_size, size - new_size);
+	}
 }
 

@@ -27,6 +27,7 @@ import (
 	// "fmt"
 	"reflect"
 	"runtime"
+	"sync/atomic"
 	"time"
 	"unsafe"
 )
@@ -132,4 +133,15 @@ func Get_mem_stats() mem_stats {
 		ms.PauseTotalNs,
 		ms.NumGC,
 	}
+}
+
+func Atomic_store_pointer(addr *unsafe.Pointer, val unsafe.Pointer) {
+	atomic.StorePointer(addr, val)
+}
+
+func Allocate_array_of_pointers(num uintptr) unsafe.Pointer {
+	// we use pointers in here to force the GC to check all heap allocations for pointers to other objects
+	res := make([]unsafe.Pointer, num)
+	// we want the slice's underlying array
+	return unsafe.Pointer(&res[0])
 }

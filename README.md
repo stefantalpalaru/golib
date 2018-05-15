@@ -3,17 +3,18 @@
 **golib** is a library exposing Go's channels and goroutines to plain C and to any
 other language able to use C libraries.
 
-There are two catches:
+There are three catches:
 - your *main()* function needs to call *golib\_main()* which will not return control
   to it. You should put the actual main code in another function with the
   assembler name of *'main.main'* (see examples).
+- you need to use write barriers when assigning pointers
 - we use gccgo (from upstream GCC) instead of the main Go toolchain, for
   technical reasons, so the channel/goroutine performance is lower and the
   memory usage is higher.
 
 ## requirements
 
-- GCC with Go support (tested with GCC 7.3.0, 8.1.0).
+- GCC with Go support (tested with GCC 7.3.0, 8.2.0).
 
 ## inspiration
 
@@ -33,7 +34,7 @@ Go code for the rest. Convincing autoconf and libtool to create a library from
 Go and C code was not easy, because they mostly lack builtin gccgo support, but
 it was done.
 
-When building this library and programs using it it's important to leave the
+When building this library and programs using it, it's important to leave the
 debug info unstripped because the Go runtime needs it. So use '-g' in your
 CFLAGS and make sure you don't have '-s' in LDFLAGS (already done in **golib**'s
 build system) and if you're a distribution packager make sure that the
@@ -63,9 +64,9 @@ make check
 /usr/bin/time -v ./benchmarks/cw-go
 ```
 
-With the [chinese whispers benchmark][1] I see on my system (gcc-7.1.0, go-1.8.3,
-AMD FX-8320E, Linux 4.11.0-pf7 x86\_64) that the **golib** version is 3.2 times slower
-and uses 3.9 times more memory than the go version. This should be a worst case
+With the [chinese whispers benchmark][1] I see on my system (gcc-8.2.0, go-1.11,
+AMD FX-8320E, Linux 4.18.7 x86\_64) that the **golib** version is 4.3 times slower
+and uses 4.1 times more memory than the Go version. This should be a worst case
 scenario since the benchmark creates 500000 goroutines and then passes integers
 from one to the other, incrementing them with each pass. So it's basically
 testing the concurrency and message passing overhead. But look at the bright
@@ -84,9 +85,9 @@ See the [benchmarks][2] and [tests][3]. We'll have proper documentation once the
 stable. Right now it's more of a technical preview.
 
 It might be worth noting that we pass pointers through the channels and they
-should point to heap allocated memory. Freeing that memory is the receiver's
-responsibility. As an alternative, you can use Go's garbage collector from C by
-replacing malloc() with go\_malloc().
+should point to heap allocated memory. Since I didn't figure out how to make
+the standard library's malloc() play nice with Go's garbage collector, you should use the
+latter exclusively by replacing malloc() with go\_malloc().
 
 ## license
 
