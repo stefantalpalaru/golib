@@ -89,6 +89,16 @@ should point to heap allocated memory. Since I didn't figure out how to make
 the standard library's malloc() play nice with Go's garbage collector, you should use the
 latter exclusively by replacing malloc() with go\_malloc().
 
+With recent GCC versions it's necessary to replace all assignments having a heap
+pointer in the right side with calls to writebarrierptr(). Even when the
+destination is on stack, due to how the new Go garbage collector is implemented.
+
+## TODO
+
+Move as much code as possible from C (where we're chasing the moving target
+that is GCC libgo's private API) to Go that has a much more stable API in the
+language specifications.
+
 ## license
 
 BSD-2
